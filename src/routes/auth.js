@@ -65,18 +65,19 @@ router.post('/verify-otp', async (req, res) => {
   const { email, code, name, handle } = req.body;
   if (!email || !code) return res.status(400).json({ error: 'Email ve kod gerekli' });
 
+  const normalizedEmail = email.toLowerCase();
+  const normalizedCode = String(code).trim();
+
   const { rows } = await pool.query(
     `SELECT * FROM otp_codes
      WHERE email=$1 AND code=$2 AND used=false AND expires_at > NOW()
      ORDER BY created_at DESC LIMIT 1`,
-    [email.toLowerCase(), code]
+    [normalizedEmail, normalizedCode]
   );
 
   if (!rows[0]) return res.status(400).json({ error: 'Gecersiz veya suresi dolmus kod' });
 
-  await pool.query('UPDATE otp_codes SET used=true WHERE id=$1', [rows[0].id]);
-
-  let user = (await pool.query('SELECT * FROM users WHERE email=$1', [email.toLowerCase()])).rows[0];
+  let user = (await pool.query('SELECT * FROM users WHERE email=$1', [normalizedEmail])).rows[0];
 
   if (!user) {
     if (!name || !handle) {
@@ -89,10 +90,12 @@ router.post('/verify-otp', async (req, res) => {
 
     const ins = await pool.query(
       `INSERT INTO users (email, name, handle) VALUES ($1,$2,$3) RETURNING *`,
-      [email.toLowerCase(), name, handleClean]
+      [normalizedEmail, name, handleClean]
     );
     user = ins.rows[0];
   }
+
+  await pool.query('UPDATE otp_codes SET used=true WHERE id=$1', [rows[0].id]);
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '90d' });
   res.json({ token, user });
