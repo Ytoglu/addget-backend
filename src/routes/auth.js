@@ -66,7 +66,7 @@ router.post('/verify-otp', async (req, res) => {
   if (!email || !code) return res.status(400).json({ error: 'Email ve kod gerekli' });
 
   const normalizedEmail = String(email).trim().toLowerCase();
-  const normalizedCode = String(code).trim();
+  const normalizedCode = String(code).replace(/\D/g, '').slice(0, 6);
 
   const { rows } = await pool.query(
     `SELECT * FROM otp_codes
