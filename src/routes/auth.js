@@ -14,7 +14,7 @@ router.post('/send-otp', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email gerekli' });
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = String(email).trim().toLowerCase();
     const code = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -65,7 +65,7 @@ router.post('/verify-otp', async (req, res) => {
   const { email, code, name, handle } = req.body;
   if (!email || !code) return res.status(400).json({ error: 'Email ve kod gerekli' });
 
-  const normalizedEmail = email.toLowerCase();
+  const normalizedEmail = String(email).trim().toLowerCase();
   const normalizedCode = String(code).trim();
 
   const { rows } = await pool.query(
