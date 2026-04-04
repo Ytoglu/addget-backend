@@ -8,11 +8,20 @@ CREATE TABLE IF NOT EXISTS users (
   district    VARCHAR(100),
   avatar_url  TEXT,
   bio         TEXT,
+  x_profile   TEXT,
+  instagram_profile TEXT,
+  facebook_profile  TEXT,
+  whatsapp_profile  TEXT,
   push_token  TEXT,
   is_banned   BOOLEAN DEFAULT FALSE,
   ban_until   TIMESTAMP,
   created_at  TIMESTAMP DEFAULT NOW()
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS x_profile TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS instagram_profile TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS facebook_profile TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS whatsapp_profile TEXT;
 
 -- OTP
 CREATE TABLE IF NOT EXISTS otp_codes (

@@ -25,7 +25,18 @@ router.get('/:id', auth, async (req, res) => {
 
 // PATCH /users/me — profil güncelle
 router.patch('/me', auth, upload.single('avatar'), async (req, res) => {
-  const { name, handle, region, district, bio, push_token } = req.body;
+  const {
+    name,
+    handle,
+    region,
+    district,
+    bio,
+    push_token,
+    x_profile,
+    instagram_profile,
+    facebook_profile,
+    whatsapp_profile,
+  } = req.body;
   const avatar_url = req.file?.path;
 
   const { rows } = await pool.query(`
@@ -36,9 +47,13 @@ router.patch('/me', auth, upload.single('avatar'), async (req, res) => {
       district   = COALESCE($4, district),
       bio        = COALESCE($5, bio),
       push_token = COALESCE($6, push_token),
-      avatar_url = COALESCE($7, avatar_url)
-    WHERE id=$8 RETURNING *
-  `, [name, handle, region, district, bio, push_token, avatar_url, req.user.id]);
+      avatar_url = COALESCE($7, avatar_url),
+      x_profile = COALESCE($8, x_profile),
+      instagram_profile = COALESCE($9, instagram_profile),
+      facebook_profile = COALESCE($10, facebook_profile),
+      whatsapp_profile = COALESCE($11, whatsapp_profile)
+    WHERE id=$12 RETURNING *
+  `, [name, handle, region, district, bio, push_token, avatar_url, x_profile, instagram_profile, facebook_profile, whatsapp_profile, req.user.id]);
 
   res.json(rows[0]);
 });
